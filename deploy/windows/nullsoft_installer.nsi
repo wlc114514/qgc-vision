@@ -142,7 +142,9 @@ Section "Uninstall"
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
   SetShellVarContext all
   RMDir /r /REBOOTOK $INSTDIR
-  RMDir /r /REBOOTOK "$SMPROGRAMS\$StartMenuFolder\"
+  ${If} $StartMenuFolder != ""
+    RMDir /r /REBOOTOK "$SMPROGRAMS\$StartMenuFolder\"
+  ${EndIf}
   Delete "$DESKTOP\${PRODUCTNAME}.lnk"
   SetShellVarContext current
   ; QGC Vision: settings in $APPDATA\${ORGNAME} are shared with the official QGroundControl, keep them
@@ -153,6 +155,9 @@ SectionEnd
 Section "create Start Menu Shortcuts"
   SetRegView 64
   SetShellVarContext all
+  ${If} $StartMenuFolder == ""
+    StrCpy $StartMenuFolder "${PRODUCTNAME}"
+  ${EndIf}
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
   CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${EXENAME}.exe" "" "$INSTDIR\${EXENAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME} (GPU Compatibility Mode).lnk" "$INSTDIR\${EXENAME}.exe" "-angle" "$INSTDIR\${EXENAME}.exe" 0
