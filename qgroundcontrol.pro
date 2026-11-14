@@ -1366,6 +1366,12 @@ INCLUDEPATH += \
     src/VideoManager \
     src/Vision
 
+# QGC Vision: sources contain UTF-8 (Chinese UI strings); MSVC on a GBK code page needs /utf-8
+win32-msvc* {
+    QMAKE_CXXFLAGS += /utf-8
+    QMAKE_CFLAGS += /utf-8
+}
+
 HEADERS += \
     src/VideoManager/SubtitleWriter.h \
     src/VideoManager/VideoManager.h \
