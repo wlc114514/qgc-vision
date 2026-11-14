@@ -87,6 +87,7 @@
 #include "EditPositionDialogController.h"
 #include "FactValueSliderListModel.h"
 #include "ShapeFileHelper.h"
+#include "VisionController.h"
 #include "QGCFileDownload.h"
 #include "FirmwareImage.h"
 #include "MavlinkConsoleController.h"
@@ -166,6 +167,11 @@ static QObject* screenToolsControllerSingletonFactory(QQmlEngine*, QJSEngine*)
 {
     ScreenToolsController* screenToolsController = new ScreenToolsController;
     return screenToolsController;
+}
+
+static QObject* visionControllerSingletonFactory(QQmlEngine*, QJSEngine*)
+{
+    return new VisionController;
 }
 
 static QObject* mavlinkSingletonFactory(QQmlEngine*, QJSEngine*)
@@ -540,6 +546,7 @@ void QGCApplication::_initCommon()
     qmlRegisterSingletonType<ScreenToolsController>     ("QGroundControl.ScreenToolsController",    1, 0, "ScreenToolsController",  screenToolsControllerSingletonFactory);
     qmlRegisterSingletonType<ShapeFileHelper>           ("QGroundControl.ShapeFileHelper",          1, 0, "ShapeFileHelper",        shapeFileHelperSingletonFactory);
     qmlRegisterSingletonType<ShapeFileHelper>           ("MAVLink",                                 1, 0, "MAVLink",                mavlinkSingletonFactory);
+    qmlRegisterSingletonType<VisionController>          ("QGroundControl.Vision",                   1, 0, "VisionController",       visionControllerSingletonFactory);
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {

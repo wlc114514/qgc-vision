@@ -27,6 +27,8 @@
 
 #include <gst/gst.h>
 
+#include <atomic>
+
 Q_DECLARE_LOGGING_CATEGORY(VideoReceiverLog)
 
 class Worker : public QThread
@@ -96,6 +98,7 @@ public slots:
     virtual void startRecording(const QString& videoFile, FILE_FORMAT format);
     virtual void stopRecording(void);
     virtual void takeScreenshot(const QString& imageFile);
+    virtual void grabFrame(void);
 
 protected slots:
     virtual void _watchdog(void);
@@ -128,6 +131,7 @@ protected:
     static gboolean _filterParserCaps(GstElement* bin, GstPad* pad, GstElement* element, GstQuery* query, gpointer data);
     static GstPadProbeReturn _teeProbe(GstPad* pad, GstPadProbeInfo* info, gpointer user_data);
     static GstPadProbeReturn _videoSinkProbe(GstPad* pad, GstPadProbeInfo* info, gpointer user_data);
+    static QImage _sampleToImage(GstSample* sample);
     static GstPadProbeReturn _eosProbe(GstPad* pad, GstPadProbeInfo* info, gpointer user_data);
     static GstPadProbeReturn _keyframeWatch(GstPad* pad, GstPadProbeInfo* info, gpointer user_data);
 
@@ -151,6 +155,7 @@ protected:
     gulong              _videoSinkProbeId = 0;
 
     gulong              _teeProbeId = 0;
+    std::atomic<bool>   _frameRequested{false};
 
     QTimer              _watchdogTimer;
 

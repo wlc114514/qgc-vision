@@ -23,6 +23,7 @@ import QGroundControl.MultiVehicleManager   1.0
 import QGroundControl.Palette               1.0
 import QGroundControl.Controllers           1.0
 import QGroundControl.SettingsManager       1.0
+import QGroundControl.Vision                1.0
 
 Rectangle {
     id:                 _root
@@ -46,6 +47,7 @@ Rectangle {
     property real   _panelWidth:                _root.width * _internalWidthRatio
     property real   _margins:                   ScreenTools.defaultFontPixelWidth
     property var    _planViewSettings:          QGroundControl.settingsManager.planViewSettings
+    property var    _visionSettings:            QGroundControl.settingsManager.visionSettings
     property var    _flyViewSettings:           QGroundControl.settingsManager.flyViewSettings
     property var    _videoSettings:             QGroundControl.settingsManager.videoSettings
     property string _videoSource:               _videoSettings.videoSource.rawValue
@@ -417,6 +419,80 @@ Rectangle {
                                     fact:       _videoSettings.enableStorageLimit
                                     visible:    _showSaveVideoSettings && fact.visible
                                 }
+                            }
+                        }
+                    }
+
+                    Item { width: 1; height: _margins; visible: visionSectionLabel.visible }
+                    QGCLabel {
+                        id:         visionSectionLabel
+                        text:       qsTr("视觉识别")
+                        visible:    _visionSettings.visible
+                    }
+                    Rectangle {
+                        Layout.preferredHeight: visionCol.height + (_margins * 2)
+                        Layout.preferredWidth:  visionCol.width + (_margins * 2)
+                        color:                  qgcPal.windowShade
+                        visible:                visionSectionLabel.visible
+                        Layout.fillWidth:       true
+
+                        ColumnLayout {
+                            id:                         visionCol
+                            anchors.margins:            _margins
+                            anchors.top:                parent.top
+                            anchors.horizontalCenter:   parent.horizontalCenter
+                            spacing:                    _margins
+
+                            FactCheckBox {
+                                text:   qsTr("在飞行界面左侧工具栏显示「识别」按钮")
+                                fact:   _visionSettings.enabled
+                            }
+
+                            GridLayout {
+                                columns:            2
+                                columnSpacing:      ScreenTools.defaultFontPixelWidth
+
+                                QGCLabel { text: qsTr("服务状态") }
+                                RowLayout {
+                                    QGCLabel {
+                                        text:   (VisionController.serverName ? VisionController.serverName + " · " : "") + VisionController.serverMessage
+                                        color:  VisionController.serverState === "ready" ? "#3ddc5a" : (VisionController.serverState === "offline" ? "#ff8a80" : qgcPal.text)
+                                    }
+                                    QGCButton {
+                                        text:       qsTr("重启服务")
+                                        onClicked:  VisionController.restartServer()
+                                    }
+                                }
+
+                                QGCLabel { text: qsTr("服务地址") }
+                                FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _visionSettings.serverUrl
+                                }
+
+                                QGCLabel { text: qsTr("启动命令") }
+                                FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth * 2
+                                    fact:                   _visionSettings.serverCommand
+                                    placeholderText:        VisionController.effectiveCommand ? VisionController.effectiveCommand : qsTr("留空：用识别模型安装时登记的命令")
+                                }
+
+                                QGCLabel { text: qsTr("每次取画面（秒）") }
+                                FactTextField {
+                                    Layout.preferredWidth:  _valueFieldWidth
+                                    fact:                   _visionSettings.captureSeconds
+                                }
+
+                                QGCLabel { text: qsTr("每秒取几帧") }
+                                FactTextField {
+                                    Layout.preferredWidth:  _valueFieldWidth
+                                    fact:                   _visionSettings.captureFps
+                                }
+                            }
+
+                            FactCheckBox {
+                                text:   qsTr("QGC 启动时自动启动识别服务，退出时关闭")
+                                fact:   _visionSettings.autoStartServer
                             }
                         }
                     }

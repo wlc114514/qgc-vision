@@ -20,6 +20,10 @@
 #include <QUrl>
 #include <QDateTime>
 #include <QSysInfo>
+#include <QPointer>
+#include <QThreadPool>
+
+#include <gst/video/video.h>
 
 QGC_LOGGING_CATEGORY(VideoReceiverLog, "VideoReceiverLog")
 
@@ -609,6 +613,12 @@ GstVideoReceiver::stopRecording(void)
     _dispatchSignal([this, ret](){
         emit onStopRecordingComplete(ret ? STATUS_OK : STATUS_FAIL);
     });
+}
+
+void
+GstVideoReceiver::grabFrame(void)
+{
+    _frameRequested = true;
 }
 
 void
@@ -1530,8 +1540,6 @@ GstVideoReceiver::_teeProbe(GstPad* pad, GstPadProbeInfo* info, gpointer user_da
 GstPadProbeReturn
 GstVideoReceiver::_videoSinkProbe(GstPad* pad, GstPadProbeInfo* info, gpointer user_data)
 {
-    Q_UNUSED(pad)
-    Q_UNUSED(info)
 
     if(user_data != nullptr) {
         GstVideoReceiver* pThis = static_cast<GstVideoReceiver*>(user_data);
@@ -1564,9 +1572,60 @@ GstVideoReceiver::_videoSinkProbe(GstPad* pad, GstPadProbeInfo* info, gpointer u
         }
 
         pThis->_noteVideoSinkFrame();
+
+        // Vision: hand one decoded frame to a worker thread when requested
+        if (pThis->_frameRequested.exchange(false)) {
+            GstBuffer* buf = gst_pad_probe_info_get_buffer(info);
+            GstCaps* caps = gst_pad_get_current_caps(pad);
+            if (buf != nullptr && caps != nullptr) {
+                // Drop caps features (e.g. GLMemory): mapping such buffers for reading downloads them
+                GstCaps* sysCaps = gst_caps_copy(caps);
+                gst_caps_set_features(sysCaps, 0, nullptr);
+                GstSample* sample = gst_sample_new(buf, sysCaps, nullptr, nullptr);
+                gst_caps_unref(sysCaps);
+                QPointer<GstVideoReceiver> self(pThis);
+                QThreadPool::globalInstance()->start([self, sample]() {
+                    QImage image = _sampleToImage(sample);
+                    gst_sample_unref(sample);
+                    if (self) {
+                        emit self->frameGrabbed(image);
+                    }
+                });
+            }
+            if (caps != nullptr) {
+                gst_caps_unref(caps);
+            }
+        }
     }
 
     return GST_PAD_PROBE_OK;
+}
+
+QImage
+GstVideoReceiver::_sampleToImage(GstSample* sample)
+{
+    QImage image;
+    GstCaps* rgbCaps = gst_caps_new_simple("video/x-raw", "format", G_TYPE_STRING, "RGBx", nullptr);
+    GError* error = nullptr;
+    GstSample* rgb = gst_video_convert_sample(sample, rgbCaps, 3 * GST_SECOND, &error);
+    gst_caps_unref(rgbCaps);
+    if (rgb == nullptr) {
+        qCWarning(VideoReceiverLog) << "Frame conversion failed:" << (error ? error->message : "unknown");
+        if (error) {
+            g_error_free(error);
+        }
+        return image;
+    }
+    GstVideoInfo vinfo;
+    GstBuffer* buffer = gst_sample_get_buffer(rgb);
+    GstMapInfo map;
+    if (buffer != nullptr && gst_video_info_from_caps(&vinfo, gst_sample_get_caps(rgb)) && gst_buffer_map(buffer, &map, GST_MAP_READ)) {
+        image = QImage(map.data, GST_VIDEO_INFO_WIDTH(&vinfo), GST_VIDEO_INFO_HEIGHT(&vinfo),
+                       GST_VIDEO_INFO_PLANE_STRIDE(&vinfo, 0), QImage::Format_RGBX8888).copy();
+        gst_buffer_unmap(buffer, &map);
+    }
+    gst_sample_unref(rgb);
+    return image;
 }
 
 GstPadProbeReturn

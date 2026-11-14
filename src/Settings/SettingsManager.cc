@@ -31,6 +31,7 @@ SettingsManager::SettingsManager(QGCApplication* app, QGCToolbox* toolbox)
     , _apmMavlinkStreamRateSettings (nullptr)
 #endif
     , _remoteIDSettings             (nullptr)
+    , _visionSettings               (nullptr)
 {
 
 }
@@ -58,4 +59,5 @@ void SettingsManager::setToolbox(QGCToolbox *toolbox)
     _apmMavlinkStreamRateSettings = new APMMavlinkStreamRateSettings(this);
 #endif
     _remoteIDSettings =             new RemoteIDSettings            (this); 
+    _visionSettings =               new VisionSettings              (this);
 }

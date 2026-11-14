@@ -26,6 +26,7 @@ import QGroundControl.FlightMap     1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Vehicle       1.0
+import QGroundControl.Vision        1.0
 
 Item {
     id: _root
@@ -174,5 +175,13 @@ Item {
         pipZOrder:              _pipItemZorder
         show:                   !QGroundControl.videoManager.fullScreen &&
                                     (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+    }
+
+    // Vision recognition progress / result (VisionController)
+    VisionResultPanel {
+        anchors.horizontalCenter:   parent.horizontalCenter
+        anchors.top:                parent.top
+        anchors.topMargin:          ScreenTools.toolbarHeight + _toolsMargin * 2
+        z:                          QGroundControl.zOrderTopMost
     }
 }

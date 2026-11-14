@@ -215,6 +215,7 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewToolStrip.qml">src/FlightDisplay/FlyViewToolStrip.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewToolStripActionList.qml">src/FlightDisplay/FlyViewToolStripActionList.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">src/FlightDisplay/FlyViewVideo.qml</file>
+        <file alias="QGroundControl/FlightDisplay/VisionResultPanel.qml">src/FlightDisplay/VisionResultPanel.qml</file>
         <file alias="QGroundControl/FlightDisplay/OnScreenGimbalController.qml">src/FlightDisplay/OnScreenGimbalController.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewWidgetLayer.qml">src/FlightDisplay/FlyViewWidgetLayer.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionActionList.qml">src/FlightDisplay/GuidedActionActionList.qml</file>
@@ -307,6 +308,7 @@
         <file alias="CameraSpec.FactMetaData.json">src/MissionManager/CameraSpec.FactMetaData.json</file>
         <file alias="CorridorScan.SettingsGroup.json">src/MissionManager/CorridorScan.SettingsGroup.json</file>
         <file alias="RemoteID.SettingsGroup.json">src/Settings/RemoteID.SettingsGroup.json</file>
+        <file alias="Vision.SettingsGroup.json">src/Settings/Vision.SettingsGroup.json</file>
         <file alias="EditPositionDialog.FactMetaData.json">src/QmlControls/EditPositionDialog.FactMetaData.json</file>
         <file alias="FirmwareUpgrade.SettingsGroup.json">src/Settings/FirmwareUpgrade.SettingsGroup.json</file>
         <file alias="FlightMap.SettingsGroup.json">src/Settings/FlightMap.SettingsGroup.json</file>

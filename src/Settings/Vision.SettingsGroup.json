@@ -1,0 +1,57 @@
+{
+    "version":      1,
+    "fileType":  "FactMetaData",
+    "QGC.MetaData.Facts":
+[
+{
+    "name":             "enabled",
+    "shortDesc":        "Show vision recognition button",
+    "longDesc":         "Show the vision recognition button in the Fly View tool strip.",
+    "type":             "bool",
+    "default":          true
+},
+{
+    "name":             "serverUrl",
+    "shortDesc":        "Vision server URL",
+    "longDesc":         "Base URL of the local vision recognition service (GET /health, POST /analyze).",
+    "type":             "string",
+    "default":          "http://127.0.0.1:8765"
+},
+{
+    "name":             "serverCommand",
+    "shortDesc":        "Vision server start command",
+    "longDesc":         "Command line used to start the vision service. Empty: use the command registered by the model installer (HKCU\\Software\\QGC-Vision\\ServerCommand).",
+    "type":             "string",
+    "default":          ""
+},
+{
+    "name":             "autoStartServer",
+    "shortDesc":        "Start vision server with QGC",
+    "longDesc":         "Start the vision service when QGC starts (if it is not already running) and stop it when QGC exits.",
+    "type":             "bool",
+    "default":          true
+},
+{
+    "name":             "captureSeconds",
+    "shortDesc":        "Capture duration",
+    "longDesc":         "How many seconds of video frames to send for one recognition.",
+    "type":             "double",
+    "units":            "s",
+    "min":              0.2,
+    "max":              10,
+    "decimalPlaces":    1,
+    "default":          3
+},
+{
+    "name":             "captureFps",
+    "shortDesc":        "Capture rate",
+    "longDesc":         "Frames per second taken from the video during capture.",
+    "type":             "double",
+    "units":            "Hz",
+    "min":              1,
+    "max":              15,
+    "decimalPlaces":    0,
+    "default":          5
+}
+]
+}

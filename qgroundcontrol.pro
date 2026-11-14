@@ -685,6 +685,7 @@ HEADERS += \
     src/Settings/AutoConnectSettings.h \
     src/Settings/BrandImageSettings.h \
     src/Settings/RemoteIDSettings.h \
+    src/Settings/VisionSettings.h \
     src/Settings/FirmwareUpgradeSettings.h \
     src/Settings/FlightMapSettings.h \
     src/Settings/FlyViewSettings.h \
@@ -946,6 +947,7 @@ SOURCES += \
     src/Settings/AutoConnectSettings.cc \
     src/Settings/BrandImageSettings.cc \
     src/Settings/RemoteIDSettings.cc \
+    src/Settings/VisionSettings.cc \
     src/Settings/FirmwareUpgradeSettings.cc \
     src/Settings/FlightMapSettings.cc \
     src/Settings/FlyViewSettings.cc \
@@ -1361,15 +1363,18 @@ contains (DEFINES, QGC_GST_MICROHARD_DISABLED) {
 # Video Streaming
 
 INCLUDEPATH += \
-    src/VideoManager
+    src/VideoManager \
+    src/Vision
 
 HEADERS += \
     src/VideoManager/SubtitleWriter.h \
-    src/VideoManager/VideoManager.h
+    src/VideoManager/VideoManager.h \
+    src/Vision/VisionController.h
 
 SOURCES += \
     src/VideoManager/SubtitleWriter.cc \
-    src/VideoManager/VideoManager.cc
+    src/VideoManager/VideoManager.cc \
+    src/Vision/VisionController.cc
 
 contains (CONFIG, DISABLE_VIDEOSTREAMING) {
     message("Skipping support for video streaming (manual override from command line)")

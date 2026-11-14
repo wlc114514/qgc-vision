@@ -16,6 +16,7 @@
 #pragma once
 
 #include <QObject>
+#include <QImage>
 #include <QSize>
 
 class VideoReceiver : public QObject
@@ -63,6 +64,9 @@ signals:
     void onStopRecordingComplete(STATUS status);
     void onTakeScreenshotComplete(STATUS status);
 
+    // Vision: one decoded frame requested with grabFrame() (emitted from a worker thread)
+    void frameGrabbed(QImage image);
+
 public slots:
     // buffer:
     //      -1 - disable buffer and video sync
@@ -75,4 +79,6 @@ public slots:
     virtual void startRecording(const QString& videoFile, FILE_FORMAT format) = 0;
     virtual void stopRecording(void) = 0;
     virtual void takeScreenshot(const QString& imageFile) = 0;
+    // Vision: request the next decoded frame; result arrives via frameGrabbed()
+    virtual void grabFrame(void) {}
 };

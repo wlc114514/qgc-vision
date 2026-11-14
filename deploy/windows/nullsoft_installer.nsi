@@ -4,6 +4,9 @@
 !include Win\Propkey.nsh
 !include "FileFunc.nsh"
 
+; QGC Vision: installed side by side with the official QGroundControl
+!define PRODUCTNAME "QGroundControl Vision"
+
 !macro DemoteShortCut target
     !insertmacro ComHlpr_CreateInProcInstance ${CLSID_ShellLink} ${IID_IShellLink} r0 ""
     ${If} $0 <> 0
@@ -37,10 +40,10 @@
     ${EndIf}
 !macroend
 
-Name "${APPNAME}"
+Name "${PRODUCTNAME}"
 Var StartMenuFolder
 
-InstallDir "$PROGRAMFILES64\${APPNAME}"
+InstallDir "$PROGRAMFILES64\${PRODUCTNAME}"
 
 SetCompressor /SOLID /FINAL lzma
 
@@ -61,13 +64,13 @@ SetCompressor /SOLID /FINAL lzma
 Section
   DetailPrint "Checking for 32 bit uninstaller"  
   SetRegView 32
-  ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString"
+  ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}" "UninstallString"
   StrCmp $R0 "" check64BitUninstall doUninstall
 
 check64BitUninstall:
   DetailPrint "Checking for 64 bit  uninstaller"  
   SetRegView 64
-  ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString"
+  ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}" "UninstallString"
   StrCmp $R0 "" doInstall
 
 doUninstall:
@@ -75,7 +78,7 @@ doUninstall:
   IntCmp $0 0 doInstall
 
   MessageBox MB_OK|MB_ICONEXCLAMATION \
-        "Could not remove a previously installed ${APPNAME} version.$\n$\nPlease remove it before continuing."
+        "Could not remove a previously installed ${PRODUCTNAME} version.$\n$\nPlease remove it before continuing."
   Abort
 
 doInstall:
@@ -88,8 +91,8 @@ doInstall:
   File ${DRIVER_MSI}
 
   WriteUninstaller $INSTDIR\${EXENAME}-Uninstall.exe
-  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME}"
-  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$\"$INSTDIR\${EXENAME}-Uninstall.exe$\""
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}" "DisplayName" "${PRODUCTNAME}"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}" "UninstallString" "$\"$INSTDIR\${EXENAME}-Uninstall.exe$\""
   WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\${EXENAME}.exe" "DumpCount" 5 
   WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\${EXENAME}.exe" "DumpType" 1
   WriteRegExpandStr HKLM "SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\${EXENAME}.exe" "DumpFolder" "%LOCALAPPDATA%\QGCCrashDumps"
@@ -140,12 +143,10 @@ Section "Uninstall"
   SetShellVarContext all
   RMDir /r /REBOOTOK $INSTDIR
   RMDir /r /REBOOTOK "$SMPROGRAMS\$StartMenuFolder\"
+  Delete "$DESKTOP\${PRODUCTNAME}.lnk"
   SetShellVarContext current
-  ${If} $R1 != 1
-    RMDir /r /REBOOTOK "$APPDATA\${ORGNAME}\"
-  ${Endif}
-  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
-  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\${EXENAME}.exe"
+  ; QGC Vision: settings in $APPDATA\${ORGNAME} are shared with the official QGroundControl, keep them
+  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}"
   ; NOTE: We specifically do not delete the driver version key since we need it to persist around uninstalls
 SectionEnd
 
@@ -153,10 +154,11 @@ Section "create Start Menu Shortcuts"
   SetRegView 64
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME}.lnk" "$INSTDIR\${EXENAME}.exe" "" "$INSTDIR\${EXENAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME} (GPU Compatibility Mode).lnk" "$INSTDIR\${EXENAME}.exe" "-angle" "$INSTDIR\${EXENAME}.exe" 0
-  !insertmacro DemoteShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME} (GPU Compatibility Mode).lnk"
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME} (GPU Safe Mode).lnk" "$INSTDIR\${EXENAME}.exe" "-swrast" "$INSTDIR\${EXENAME}.exe" 0
-  !insertmacro DemoteShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME} (GPU Safe Mode).lnk"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${EXENAME}.exe" "" "$INSTDIR\${EXENAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME} (GPU Compatibility Mode).lnk" "$INSTDIR\${EXENAME}.exe" "-angle" "$INSTDIR\${EXENAME}.exe" 0
+  !insertmacro DemoteShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME} (GPU Compatibility Mode).lnk"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME} (GPU Safe Mode).lnk" "$INSTDIR\${EXENAME}.exe" "-swrast" "$INSTDIR\${EXENAME}.exe" 0
+  !insertmacro DemoteShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCTNAME} (GPU Safe Mode).lnk"
+  CreateShortCut "$DESKTOP\${PRODUCTNAME}.lnk" "$INSTDIR\${EXENAME}.exe" "" "$INSTDIR\${EXENAME}.exe" 0
 SectionEnd
 
